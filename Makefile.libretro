@@ -2,6 +2,18 @@ CORE_DIR := .
 LIBRETRO_DIR = $(CORE_DIR)/libretro
 ZLIB_DIR = $(LIBRETRO_DIR)/utils/zlib
 
+
+IPFSUPPORT ?= 0
+IPFDIR ?=
+ 
+ifeq ($(IPFSUPPORT), 1)
+CAPS_DIR = $(IPFDIR)
+CAPS_LIB = -L$(CAPS_DIR) -lcapsimage
+else
+CAPS_DIR =
+CAPS_LIB =
+endif
+
 ifeq ($(platform),)
 platform = unix
 ifeq ($(shell uname -a),)
@@ -109,6 +121,11 @@ LIBCOOBJ = $(LIBRETRO_DIR)/utils/libco
 LIBUTILS = $(LIBRETRO_DIR)/utils
 
 include Makefile.common
+
+ifeq ($(IPFSUPPORT), 1)
+INCFLAGS += -I$(CAPS_DIR)/include
+PLATFLAGS += -DHAVE_CAPSIMAGE=1
+endif
 
 OBJECTS := $(SOURCES_C:.c=.o)
 
