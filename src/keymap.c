@@ -8,6 +8,11 @@
 */
 const char Keymap_fileid[] = "Hatari keymap.c : " __DATE__ " " __TIME__;
 
+#ifdef __LIBRETRO__	/* RETRO HACK */
+#include <stdint.h>
+#include "SDL.h"
+#endif	/* RETRO HACK */
+
 #include <ctype.h>
 #include "main.h"
 #include "keymap.h"

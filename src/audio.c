@@ -117,6 +117,7 @@ static void Audio_CallBack(void *userdata, Uint8 *stream, int len)
  */
 void Audio_Init(void)
 {
+#ifndef __LIBRETRO__	/* RETRO HACK */
 	SDL_AudioSpec desiredAudioSpec;    /* We fill in the desired SDL audio options here */
 
 	/* Is enabled? */
@@ -181,6 +182,8 @@ void Audio_Init(void)
 	{
 		fprintf(stderr, "Warning: Soundbuffer size is too big!\n");
 	}
+
+#endif	/* RETRO HACK */
 
 	/* All OK */
 	bSoundWorking = true;

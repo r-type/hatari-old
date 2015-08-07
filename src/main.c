@@ -60,6 +60,10 @@ const char Main_fileid[] = "Hatari main.c : " __DATE__ " " __TIME__;
 #include "falcon/hostscreen.h"
 #include "falcon/dsp.h"
 
+#ifdef __LIBRETRO__	/* RETRO HACK */
+#include "retromain.inc"
+#endif	/* RETRO HACK */
+
 #if HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #endif
@@ -79,6 +83,8 @@ static int nVBLSlowdown = 1;		  /* host VBL wait multiplier */
 static bool bEmulationActive = true;      /* Run emulation when started */
 static bool bAccurateDelays;              /* Host system has an accurate SDL_Delay()? */
 static bool bIgnoreNextMouseMotion = false;  /* Next mouse motion will be ignored (needed after SDL_WarpMouse) */
+
+#ifndef __LIBRETRO__	/* RETRO HACK */
 
 /*-----------------------------------------------------------------------*/
 /**
@@ -111,6 +117,9 @@ static Uint32 Main_GetTicks(void)
 # define Main_GetTicks SDL_GetTicks
 #endif
 
+#else
+# define Main_GetTicks SDL_GetTicks
+#endif	/* RETRO HACK */
 
 //#undef HAVE_GETTIMEOFDAY
 //#undef HAVE_NANOSLEEP
@@ -254,6 +263,9 @@ void Main_RequestQuit(int exitval)
 	{
 		/* Assure that CPU core shuts down */
 		M68000_SetSpecial(SPCFLAG_BRK);
+#ifdef __LIBRETRO__ 	/* RETRO HACK */
+pauseg=-1;
+#endif	/* RETRO HACK */
 	}
 	nQuitValue = exitval;
 }
@@ -301,6 +313,10 @@ void Main_WaitOnVbl(void)
 	static Sint64 DestTicks = 0;
 	Sint64 FrameDuration_micro;
 	Sint64 nDelay;
+#ifdef __LIBRETRO__	/* RETRO HACK */
+if(pauseg==1)pause_select();
+co_switch(mainThread);
+#endif	/* RETRO HACK */
 
 	nVBLCount++;
 	if (nRunVBLs &&	nVBLCount >= nRunVBLs)
@@ -423,7 +439,13 @@ void Main_WarpMouse(int x, int y, bool restore)
 #if WITH_SDL2
 	SDL_WarpMouseInWindow(sdlWindow, x, y);
 #else
+
+#ifdef __LIBRETRO__	/* RETRO HACK */
+fmousex=x;
+fmousey=y;
+#else
 	SDL_WarpMouse(x, y);
+#endif	/* RETRO HACK */
 #endif
 	bIgnoreNextMouseMotion = true;
 }
@@ -433,7 +455,11 @@ void Main_WarpMouse(int x, int y, bool restore)
 /**
  * Handle mouse motion event.
  */
+#ifdef __LIBRETRO__	/* RETRO HACK */
+void Main_HandleMouseMotion()
+#else
 static void Main_HandleMouseMotion(SDL_Event *pEvent)
+#endif	/* RETRO HACK */
 {
 	int dx, dy;
 	static int ax = 0, ay = 0;
@@ -445,10 +471,13 @@ static void Main_HandleMouseMotion(SDL_Event *pEvent)
 		bIgnoreNextMouseMotion = false;
 		return;
 	}
-
+#ifdef __LIBRETRO__	/* RETRO HACK */
+dx = fmousex;
+dy = fmousey;
+#else
 	dx = pEvent->motion.xrel;
 	dy = pEvent->motion.yrel;
-
+#endif	/* RETRO HACK */
 	/* In zoomed low res mode, we divide dx and dy by the zoom factor so that
 	 * the ST mouse cursor stays in sync with the host mouse. However, we have
 	 * to take care of lowest bit of dx and dy which will get lost when
@@ -480,6 +509,10 @@ static void Main_HandleMouseMotion(SDL_Event *pEvent)
  */
 void Main_EventHandler(void)
 {
+#ifdef __LIBRETRO__	/* RETRO HACK */
+if (ConfigureParams.Sound.bEnableSound)SND=1;
+else SND=-1;
+#else
 	bool bContinueProcessing;
 	SDL_Event event;
 	int events;
@@ -589,6 +622,7 @@ void Main_EventHandler(void)
 			break;
 		}
 	} while (bContinueProcessing || !(bEmulationActive || bQuitProgram));
+#endif 	/* RETRO HACK */
 }
 
 
@@ -635,7 +669,11 @@ static void Main_Init(void)
 	if (!Log_Init())
 	{
 		fprintf(stderr, "Logging/tracing initialization failed\n");
+#ifndef __LIBRETRO__ 	/* RETRO HACK */
 		exit(-1);
+#else
+		pauseg=-1;
+#endif 	/* RETRO HACK */
 	}
 	Log_Printf(LOG_INFO, PROG_NAME ", compiled on:  " __DATE__ ", " __TIME__ "\n");
 
@@ -650,7 +688,11 @@ static void Main_Init(void)
 	if ( IPF_Init() != true )
 	{
 		fprintf(stderr, "Could not initialize the IPF support\n" );
+#ifndef __LIBRETRO__ 	/* RETRO HACK */
 		exit(-1);
+#else
+		pauseg=-1;
+#endif 	/* RETRO HACK */
 	}
 
 	ClocksTimings_InitMachine ( ConfigureParams.System.nMachineType );
@@ -687,12 +729,24 @@ static void Main_Init(void)
 	{
 		/* If loading of the TOS failed, we bring up the GUI to let the
 		 * user choose another TOS ROM file. */
+#ifdef __LIBRETRO__	/* RETRO HACK */
+//try to load from retro_system_directory
+// else load GUI
+		if(LoadTosFromRetroSystemDir()){
+			pauseg=1;
+			pause_select();
+		}
+#else
 		Dialog_DoProperty();
+#endif	/* RETRO HACK */
 	}
 	if (!bTosImageLoaded || bQuitProgram)
 	{
 		fprintf(stderr, "Failed to load TOS image!\n");
 		SDL_Quit();
+#ifdef __LIBRETRO__	/* RETRO HACK */
+retro_shutdown_hatari();
+#endif /* RETRO HACK */
 		exit(-2);
 	}
 
@@ -709,7 +763,11 @@ static void Main_Init(void)
 /**
  * Un-Initialise emulation
  */
-static void Main_UnInit(void)
+#ifndef __LIBRETRO__ /* RETRO HACK */
+ static void Main_UnInit(void)
+#else
+ void Main_UnInit(void)
+#endif /* RETRO HACK */
 {
 	Screen_ReturnFromFullScreen();
 	Floppy_UnInit();
@@ -752,11 +810,19 @@ static void Main_LoadInitialConfig(void)
 	psGlobalConfig = malloc(FILENAME_MAX);
 	if (psGlobalConfig)
 	{
+
+#ifdef __LIBRETRO__	/* RETRO HACK */
+snprintf(psGlobalConfig, FILENAME_MAX, "%s%chatari.cfg",RETRO_DIR, PATHSEP);
+printf("RetroConf:'%s'\n",psGlobalConfig);
+#else
+
 #if defined(__AMIGAOS4__)
 		strncpy(psGlobalConfig, CONFDIR"hatari.cfg", FILENAME_MAX);
 #else
 		snprintf(psGlobalConfig, FILENAME_MAX, CONFDIR"%chatari.cfg", PATHSEP);
 #endif
+#endif	/* RETRO HACK */
+
 		/* Try to load the global configuration file */
 		Configuration_Load(psGlobalConfig);
 
@@ -803,7 +869,11 @@ static void Main_StatusbarSetup(void)
  * 
  * Note: 'argv' cannot be declared const, MinGW would then fail to link.
  */
+#ifdef __LIBRETRO__	/* RETRO HACK */
+int hmain(int argc, char *argv[])
+#else
 int main(int argc, char *argv[])
+#endif	/* RETRO HACK */
 {
 	/* Generate random seed */
 	srand(time(NULL));
@@ -826,13 +896,17 @@ int main(int argc, char *argv[])
 	/* Check for any passed parameters */
 	if (!Opt_ParseParameters(argc, (const char * const *)argv))
 	{
+#ifndef __LIBRETRO__	/* RETRO HACK */
 		return 1;
+#endif	/* RETRO HACK */
 	}
 	/* monitor type option might require "reset" -> true */
 	Configuration_Apply(true);
 
 #ifdef WIN32
+#ifndef __LIBRETRO__	/* RETRO HACK */
 	Win_OpenCon();
+#endif	/* RETRO HACK */
 #endif
 
 #if HAVE_SETENV
@@ -874,6 +948,8 @@ int main(int argc, char *argv[])
 	}
 	/* Un-init emulation system */
 	Main_UnInit();
-
+#ifdef __LIBRETRO__	/* RETRO HACK */
+pauseg=-1;
+#endif	/* RETRO HACK */
 	return nQuitValue;
 }
