@@ -1,0 +1,5 @@
+src/tos.img
+src/*.o
+*.so
+*.o
+

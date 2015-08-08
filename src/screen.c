@@ -1475,7 +1475,7 @@ static int AdjustLinePaletteRemap(int y)
 #ifdef __LIBRETRO__	/* RETRO HACK */
 void reset_screen(){
 	Resolution_Init();
-	Screen_SetResolution();
+	Screen_SetResolution(true);
 	Screen_SetFullUpdate();
 }
 #endif	/* RETRO HACK */

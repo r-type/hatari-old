@@ -62,6 +62,7 @@ const char Main_fileid[] = "Hatari main.c : " __DATE__ " " __TIME__;
 
 #ifdef __LIBRETRO__	/* RETRO HACK */
 #include "retromain.inc"
+#define  Main_WarpMouse(a,b,c)  Main_WarpMouse(int x, int y, bool restore)
 #endif	/* RETRO HACK */
 
 #if HAVE_GETTIMEOFDAY
