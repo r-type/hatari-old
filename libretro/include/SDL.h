@@ -5,7 +5,7 @@
 //RETRO HACK
 //#warning This is just an SDL wrapper for the retro core.
 
-#define SDL_strlcpy(dst, src, size) strlcpy(dst, src, size)
+//#define SDL_strlcpy(dst, src, size) strlcpy(dst, src, size)
 
 extern int Reset_Cold(void);
 extern int Reset_Warm(void);
