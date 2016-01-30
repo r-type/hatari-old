@@ -141,6 +141,8 @@ long GetTicks(void)
 
 } 
 
+int slowdown=0;
+
 //NO SURE FIND BETTER WAY TO COME BACK IN MAIN THREAD IN HATARI GUI
 void gui_poll_events(void)
 {
@@ -148,6 +150,7 @@ void gui_poll_events(void)
 
    if(Ktime - LastFPSTime >= 1000/50)
    {
+	slowdown=0;
       frame++; 
       LastFPSTime = Ktime;		
       co_switch(mainThread);
@@ -718,6 +721,10 @@ void input_gui(void)
 
    if(MOUSEMODE==1)
    {
+
+	if(slowdown>0)return;
+
+#if 0
       //TODO FIX THIS :(
 #if defined(__CELLOS_LV2__) 
       //Slow Joypad Mouse Emulation for PS3
@@ -729,7 +736,7 @@ void input_gui(void)
 #elif defined(GEKKO) 
       PAS=1;
 #endif
-
+#endif
       if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT))
          mouse_x += PAS;
       if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT))
@@ -742,6 +749,8 @@ void input_gui(void)
       mouse_r=input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B);
 
       PAS=SAVPAS;
+
+	  slowdown=1;
    }
    else
    {
