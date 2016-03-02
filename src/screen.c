@@ -646,7 +646,7 @@ void Screen_Init(void)
 		}
 	}
 	pFrameBuffer = &FrameBuffers[0];
-
+#ifndef __LIBRETRO__	/* RETRO HACK */
 	/* Load and set icon */
 	snprintf(sIconFileName, sizeof(sIconFileName), "%s%chatari-icon.bmp",
 	         Paths_GetDataDir(), PATHSEP);
@@ -662,7 +662,7 @@ void Screen_Init(void)
 #endif
 		SDL_FreeSurface(pIconSurf);
 	}
-
+#endif	/* RETRO HACK */
 	/* Set initial window resolution */
 	bInFullScreen = ConfigureParams.Screen.bFullScreen;
 	Screen_SetResolution(false);
@@ -1517,6 +1517,13 @@ Uint32 Screen_GetGenConvHeight(void)
 	return STScreenRect.h;
 }
 
+#ifdef __LIBRETRO__	/* RETRO HACK */
+void reset_screen(){
+	Resolution_Init();
+	Screen_SetResolution(true);
+	Screen_SetFullUpdate();
+}
+#endif	/* RETRO HACK */
 
 /* -------------- screen conversion routines --------------------------------
   Screen conversion routines. We have a number of routines to convert ST screen
