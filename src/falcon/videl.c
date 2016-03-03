@@ -64,7 +64,7 @@
 */
 
 const char VIDEL_fileid[] = "Hatari videl.c : " __DATE__ " " __TIME__;
-
+ #include <stdint.h>
 #include <SDL_endian.h>
 #include <SDL.h>
 #include "main.h"

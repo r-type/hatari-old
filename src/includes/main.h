@@ -15,7 +15,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-
+ #include <stdint.h>
 #include <SDL_types.h>
 #include <stdbool.h>
 

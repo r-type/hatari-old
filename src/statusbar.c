@@ -175,6 +175,10 @@ int Statusbar_SetHeight(int width, int height)
 #endif 	/* RETRO HACK */
 }
 
+#ifdef __LIBRETRO__ 	/* RETRO HACK */
+int LEDA=0, LEDB=0, LEDC=0;
+#endif 	/* RETRO HACK */
+
 /*-----------------------------------------------------------------------*/
 /**
  * Return height of statusbar set with Statusbar_SetHeight()
@@ -597,7 +601,7 @@ static SDL_Rect* Statusbar_DrawMessage(SDL_Surface *surf, const char *msg)
 	DEBUGPRINT(("Draw message: '%s'\n", msg));
 	return &MessageRect;
 #else
-	int offset = strlen(msg) * 16) / 2;
+	int offset = (strlen(msg) * 16) / 2;
 	SDLGui_Text(10 + offset, 470, msg);
 	return NULL;
 #endif 	/* RETRO HACK */
