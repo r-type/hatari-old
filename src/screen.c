@@ -1570,6 +1570,13 @@ static int AdjustLinePaletteRemap(int y)
 	return ScrUpdateFlag;
 }
 
+#ifdef __LIBRETRO__	/* RETRO HACK */
+void reset_screen(){
+	Resolution_Init();
+	Screen_SetResolution(true);
+	Screen_SetFullUpdate();
+}
+#endif	/* RETRO HACK */
 
 /*-----------------------------------------------------------------------*/
 /**

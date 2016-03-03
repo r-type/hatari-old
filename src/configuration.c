@@ -11,6 +11,10 @@
 */
 const char Configuration_fileid[] = "Hatari configuration.c : " __DATE__ " " __TIME__;
 
+#ifdef __LIBRETRO__ 	/* RETRO HACK */
+#include "SDL.h"
+#endif	/* RETRO HACK */
+
 #include <SDL_keyboard.h>
 
 #include "main.h"

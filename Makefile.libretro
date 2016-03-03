@@ -3,6 +3,7 @@ LIBRETRO_DIR = $(CORE_DIR)/libretro
 ZLIB_DIR = $(LIBRETRO_DIR)/utils/zlib
 
 NEWCPU ?= 1
+
 IPFSUPPORT ?= 0
 IPFDIR ?=
  
@@ -29,11 +30,13 @@ endif
 
 EXTERNAL_ZLIB = 0
 
+
 ifeq ($(NEWCPU), 1)
 TARGET_NAME	:= nhatari
 else
 TARGET_NAME	:= hatari
 endif
+
 
 ifeq ($(platform), unix)
    CC = gcc
@@ -116,6 +119,7 @@ CPPFLAGS  += $(CFLAGS)
 
 EMU = $(CORE_DIR)/src
 
+
 ifeq ($(NEWCPU), 1)
 CFLAGS += -DNEW_WCPU=1
 CPU = $(EMU)/cpu
@@ -127,11 +131,13 @@ FALCON = $(EMU)/falcon
 DBG = $(EMU)/debug
 FLP = $(EMU)
 GUI = $(LIBRETRO_DIR)/gui-retro
+
 ifeq ($(NEWCPU), 1)
 CPU_PREGEN = $(LIBRETRO_DIR)/new-cpu-pregen
 else
 CPU_PREGEN = $(LIBRETRO_DIR)/uae-cpu-pregen
 endif
+
 LIBCOOBJ = $(LIBRETRO_DIR)/utils/libco
 LIBUTILS = $(LIBRETRO_DIR)/utils
 

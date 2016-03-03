@@ -601,8 +601,10 @@ static SDL_Rect* Statusbar_DrawMessage(SDL_Surface *surf, const char *msg)
 	DEBUGPRINT(("Draw message: '%s'\n", msg));
 	return &MessageRect;
 #else
+
 	int offset = (strlen(msg) * 16) / 2;
 	SDLGui_Text(10 + offset, 470, msg);
+
 	return NULL;
 #endif 	/* RETRO HACK */
 }

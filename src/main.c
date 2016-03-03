@@ -83,7 +83,9 @@ static int nVBLSlowdown = 1;		  /* host VBL wait multiplier */
 static bool bEmulationActive = true;      /* Run emulation when started */
 static bool bAccurateDelays;              /* Host system has an accurate SDL_Delay()? */
 static bool bIgnoreNextMouseMotion = false;  /* Next mouse motion will be ignored (needed after SDL_WarpMouse) */
+
 #ifndef __LIBRETRO__	/* RETRO HACK */
+
 /*-----------------------------------------------------------------------*/
 /**
  * Return current time as millisecond for performance measurements.
@@ -437,6 +439,7 @@ void Main_WarpMouse(int x, int y, bool restore)
 #if WITH_SDL2
 	SDL_WarpMouseInWindow(sdlWindow, x, y);
 #else
+
 #ifdef __LIBRETRO__	/* RETRO HACK */
 fmousex=x;
 fmousey=y;
@@ -776,6 +779,7 @@ static void Main_Init(void)
 	{
 		fprintf(stderr, "Failed to load TOS image!\n");
 		SDL_Quit();
+
 //FIXME: RA bug with shutown ?
 #ifdef __LIBRETRO__	/* RETRO HACK */
 retro_shutdown_hatari();
@@ -798,7 +802,9 @@ retro_shutdown_hatari();
  * Un-Initialise emulation
  */
 #ifndef __LIBRETRO__ /* RETRO HACK */
+
 static void Main_UnInit(void)
+
 #else
  void Main_UnInit(void)
 #endif /* RETRO HACK */
@@ -843,6 +849,7 @@ static void Main_LoadInitialConfig(void)
 	psGlobalConfig = malloc(FILENAME_MAX);
 	if (psGlobalConfig)
 	{
+
 #ifdef __LIBRETRO__	/* RETRO HACK */
 snprintf(psGlobalConfig, FILENAME_MAX, "%s%chatari.cfg",RETRO_DIR, PATHSEP);
 printf("RetroConf:'%s'\n",psGlobalConfig);
@@ -854,6 +861,7 @@ printf("RetroConf:'%s'\n",psGlobalConfig);
 		snprintf(psGlobalConfig, FILENAME_MAX, CONFDIR"%chatari.cfg", PATHSEP);
 #endif
 #endif	/* RETRO HACK */
+
 		/* Try to load the global configuration file */
 		Configuration_Load(psGlobalConfig);
 
@@ -936,7 +944,9 @@ int main(int argc, char *argv[])
 
 #ifndef __LIBRETRO__	/* RETRO HACK */
 #ifdef WIN32
+#ifndef __LIBRETRO__	/* RETRO HACK */
 	Win_OpenCon();
+#endif	/* RETRO HACK */
 #endif
 #endif	/* RETRO HACK */
 

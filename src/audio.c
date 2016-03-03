@@ -182,7 +182,9 @@ void Audio_Init(void)
 	{
 		fprintf(stderr, "Warning: Soundbuffer size is too big!\n");
 	}
+
 #endif	/* RETRO HACK */
+
 	/* All OK */
 	bSoundWorking = true;
 	/* And begin */
