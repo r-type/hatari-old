@@ -14,7 +14,7 @@
 #include "compat.h"
 #include "maccess.h"
 #include "events.h"
-#include "memory.h"
+#include "emumemory.h"
 #include "custom.h"
 
 /* Possible exceptions sources for M68000_Exception() and Exception() */

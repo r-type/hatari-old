@@ -2,7 +2,7 @@
 #include "sysdeps.h"
 #include "hatari-glue.h"
 #include "maccess.h"
-#include "memory.h"
+#include "emumemory.h"
 #include "custom.h"
 #include "newcpu.h"
 #include "cpu_prefetch.h"
